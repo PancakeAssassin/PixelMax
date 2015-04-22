@@ -57,6 +57,27 @@ public class test {
 		
 		Mat stitched= ImageProc.stitchImages(stitch1, stitch2);
 		Highgui.imwrite("/TestImages/stitched.jpg", stitched);
+		
+		Mat rot90 = ImageProc.rotateBy90(test, 90);
+		Highgui.imwrite("TestImages/rot90.jpg", rot90);
+		
+		Mat rot180 = ImageProc.rotateBy90(test, 180);
+		Highgui.imwrite("TestImages/rot180.jpg", rot180);
+		
+		Mat rot270 = ImageProc.rotateBy90(test, 270);
+		Highgui.imwrite("TestImages/rot270.jpg", rot270);
+		
+		Mat reflectOverX= ImageProc.reflect(test, ImageProc.REFLECT_OVER_X_AXIS);
+		Highgui.imwrite("TestImages/reflectX.jpg", reflectOverX);
+		
+		Mat reflectOverY= ImageProc.reflect(test, ImageProc.REFLECT_ACROSS_Y_AXIS);
+		Highgui.imwrite("TestImages/reflectY.jpg", reflectOverY);
+		
+		Mat scaleBy2= ImageProc.scale(test, 2.0f);
+		Highgui.imwrite("TestImages/scaleBy2.jpg", scaleBy2);
+		
+		Mat scaleByHalf= ImageProc.scale(test, 0.5f);
+		Highgui.imwrite("TestImages/scaleByHalf.jpg", scaleByHalf);
 	}
 }
 

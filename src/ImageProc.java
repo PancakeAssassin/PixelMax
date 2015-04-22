@@ -1,3 +1,6 @@
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +28,9 @@ import org.opencv.imgproc.Imgproc;
 
 public class ImageProc {
 
+	public static final int REFLECT_OVER_X_AXIS= 0;
+	public static final int REFLECT_ACROSS_Y_AXIS= 1;
+	
 	public static Mat sharpenImage(String filename)
 	{
 		Mat image= LoadImage(filename);
@@ -146,6 +152,55 @@ public class ImageProc {
 		
 		return originalImage;
 	}
+	
+	public static Mat scale(String filename, float scaleBy)
+	{
+		Mat image = LoadImage(filename);
+		Mat scaledImage= new Mat((int)(image.rows() * scaleBy), (int)(image.cols() *scaleBy), image.type());
+		
+		Imgproc.resize(image, scaledImage, scaledImage.size());
+		return scaledImage;
+	}
+	
+	public static Mat reflect(String filename, int flipCode)
+	{
+		Mat image= LoadImage(filename);
+		Core.flip(image, image, flipCode);
+		return image;
+	}
+	
+	//input should be divisible by 90
+	//quick and simple matrix manipulation to rotate by increments of 90
+	public static Mat rotateBy90(String filename, int degrees)
+	{
+		Mat image= LoadImage(filename);
+		
+		//find the number of rotations for the transformation
+		int numRot= degrees / 90;
+		//there are only 4 different positions an image can take
+		numRot= numRot % 4;
+		
+		Mat rotateDest= null;
+		if(numRot == 1)
+		{
+			rotateDest= new Mat(image.rows(), image.cols(), image.type());
+			rotateDest= image.t();
+		}
+		else if(numRot == 2)
+		{
+			rotateDest= new Mat(image.cols(), image.rows(), image.type());
+			rotateDest= new Mat();
+			Core.flip(image, rotateDest, -1);
+		}
+		else if(numRot == 3)
+		{
+			rotateDest= new Mat(image.rows(), image.cols(), image.type());
+			rotateDest = image.t();
+			Core.flip(rotateDest, rotateDest, -1);
+		}
+		return rotateDest;
+	}
+	
 	
 	public static Mat stitchImages(String file1, String file2)
 	{
@@ -309,6 +364,33 @@ public class ImageProc {
 			return null;
 		}
 		
+		return image;
+	}
+	
+	public static Mat convertFromBufferedImage(BufferedImage imageData)
+	{
+		byte[] pixels= ((DataBufferByte) imageData.getRaster().getDataBuffer()).getData();
+		
+		Mat image= new Mat(imageData.getHeight(), imageData.getWidth(), CvType.CV_8UC3);
+		image.put(0, 0, pixels);
+		
+		return image;
+	}
+	
+	public static Image convertToBufferedImage(Mat m)
+	{
+		int type= BufferedImage.TYPE_BYTE_GRAY;
+		if(m.channels() > 1)
+		{
+			type = BufferedImage.TYPE_3BYTE_BGR;
+		}
+		int bufferSize= m.channels()*m.cols()*m.rows();
+		byte[] b= new byte[bufferSize];
+		
+		m.get(0, 0, b);
+		BufferedImage image= new BufferedImage(m.cols(), m.rows(), type);
+		final byte[] targetPixels= ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+		System.arraycopy(b, 0, targetPixels, 0, b.length);
 		return image;
 	}
 }
