@@ -34,6 +34,21 @@ public class ImageProc {
 	public static Mat sharpenImage(String filename)
 	{
 		Mat image= LoadImage(filename);
+		Mat destination= sharpenImage(image);
+
+		return destination;
+	}
+	
+	public static BufferedImage sharpenImage(BufferedImage img)
+	{
+		Mat image= convertFromBufferedImage(img);
+		Mat dest= sharpenImage(image);
+		
+		return (BufferedImage) convertToBufferedImage(dest);
+	}
+	
+	public static Mat sharpenImage(Mat image)
+	{
 		Mat destination= new Mat(image.rows(), image.cols(), image.type());
 		Imgproc.GaussianBlur(image, destination, new Size(0,0), 10);
 		Core.addWeighted(image, 1.5, destination, -0.5, 0, destination);
@@ -44,14 +59,30 @@ public class ImageProc {
 	public static Mat lineTransform(String filename)
 	{
 		Mat originalImage= LoadImage(filename);
+		originalImage= lineTransform(originalImage);
 		
+		return originalImage;
+	}
+	
+	public static BufferedImage lineTransform(BufferedImage img)
+	{
+		Mat originalImage= convertFromBufferedImage(img);
+		originalImage= lineTransform(originalImage);
+		
+		return (BufferedImage) convertToBufferedImage(originalImage);
+	}
+	
+	public static Mat lineTransform(Mat originalImage)
+	{
+		Mat image= new Mat(originalImage.rows(), originalImage.cols(), originalImage.type());
+		originalImage.copyTo(image);
 		if(originalImage.empty())
 		{
 			System.out.println("Cannot open file");
 			return null;
 		}
 		
-		Mat lineDetect= performCannyTransform(filename);
+		Mat lineDetect= performCannyTransform(originalImage);
 		
 		Mat lines = new Mat();
 		Imgproc.HoughLinesP(lineDetect, lines, 1, Math.PI/180, 100, 20, 20);
@@ -66,16 +97,29 @@ public class ImageProc {
 			Point start= new Point(x1, y1);
 			Point end= new Point(x2, y2);
 			
-			Core.line(originalImage, start, end, new Scalar(255,0 , 0), 2);
+			Core.line(image, start, end, new Scalar(255,0 , 0), 2);
 		}
 		
-		return originalImage;
+		return image;
+	}
+	
+	public static BufferedImage performCannyTransform(BufferedImage img)
+	{
+		Mat image= convertFromBufferedImage(img);
+		image= performCannyTransform(image);
+		return (BufferedImage) convertToBufferedImage(image);
 	}
 	
 	public static Mat performCannyTransform(String filename)
 	{
 		Mat originalImage= LoadImage(filename);
+		originalImage= performCannyTransform(originalImage);
 		
+		return originalImage;
+	}
+	
+	public static Mat performCannyTransform(Mat originalImage)
+	{
 		if(originalImage.empty())
 		{
 			System.out.println("Cannot open file");
@@ -93,10 +137,25 @@ public class ImageProc {
 		return originalImage;
 	}
 	
+	
 	public static Mat equalizeImage(String filename)
 	{
 		Mat originalImage = LoadImage(filename);
+		Mat result= equalizeImage(originalImage);
 		
+		return result;
+	}
+	
+	public static BufferedImage equalizeImage(BufferedImage img)
+	{
+		Mat originalImage= convertFromBufferedImage(img);
+		Mat result= equalizeImage(originalImage);
+		
+		return (BufferedImage) convertToBufferedImage(result);
+	}
+	
+	public static Mat equalizeImage(Mat originalImage)
+	{
 		if(originalImage.empty())
 		{
 			System.out.println("Cannot open file");
@@ -144,6 +203,30 @@ public class ImageProc {
 		return oImage;
 	}
 	
+	public static Mat blendImages(BufferedImage image1, BufferedImage image2)
+	{
+		Mat oImage= convertFromBufferedImage(image1);
+		Mat otherImage= convertFromBufferedImage(image2);
+		
+		if(oImage== null || otherImage == null)
+		{
+			System.out.println("Unable to perform blend on images");
+			return null;
+		}
+		
+		if((oImage.width() != otherImage.width()) || (oImage.height() != otherImage.height()))
+		{
+			System.out.println("Unable to blend images of unlike sizes");
+			return oImage;
+		}
+		double alpha= 0.5;
+		double beta= (1-alpha);
+		
+		Core.addWeighted(oImage, alpha, otherImage, beta, 0.0, oImage);
+		
+		return oImage;
+	}
+	
 	public static Mat perspectiveTransform(String filename)
 	{
 		Mat originalImage= LoadImage(filename);
@@ -156,15 +239,43 @@ public class ImageProc {
 	public static Mat scale(String filename, float scaleBy)
 	{
 		Mat image = LoadImage(filename);
-		Mat scaledImage= new Mat((int)(image.rows() * scaleBy), (int)(image.cols() *scaleBy), image.type());
+		Mat scaledImage= scale(image, scaleBy);
 		
+		return scaledImage;
+	}
+	
+	public static BufferedImage scale(BufferedImage image, float scaleBy)
+	{
+		Mat img= convertFromBufferedImage(image);
+		Mat scaledImage= scale(img, scaleBy);
+		
+		return (BufferedImage) convertToBufferedImage(scaledImage);
+	}
+	
+	public static Mat scale(Mat image, float scaleBy)
+	{
+		Mat scaledImage= new Mat((int)(image.rows() * scaleBy), (int)(image.cols() *scaleBy), image.type());
 		Imgproc.resize(image, scaledImage, scaledImage.size());
+		
 		return scaledImage;
 	}
 	
 	public static Mat reflect(String filename, int flipCode)
 	{
 		Mat image= LoadImage(filename);
+		image= reflect(image, flipCode);
+		return image;
+	}
+	
+	public static BufferedImage reflect(BufferedImage img, int flipCode)
+	{
+		Mat image= convertFromBufferedImage(img);
+		image= reflect(image, flipCode);
+		return (BufferedImage) convertToBufferedImage(image);
+	}
+	
+	public static Mat reflect(Mat image, int flipCode)
+	{
 		Core.flip(image, image, flipCode);
 		return image;
 	}
@@ -174,17 +285,32 @@ public class ImageProc {
 	public static Mat rotateBy90(String filename, int degrees)
 	{
 		Mat image= LoadImage(filename);
+		Mat rotateDest= rotateBy90(image, degrees);
 		
+		return rotateDest;
+	}
+	
+	public static BufferedImage rotateBy90(BufferedImage image, int degrees)
+	{
+		Mat img= convertFromBufferedImage(image);
+		Mat rotateDest= rotateBy90(img, degrees);
+		
+		return (BufferedImage) convertToBufferedImage(rotateDest);
+	}
+	
+	public static Mat rotateBy90(Mat image, int degrees)
+	{
 		//find the number of rotations for the transformation
 		int numRot= degrees / 90;
 		//there are only 4 different positions an image can take
 		numRot= numRot % 4;
-		
+				
 		Mat rotateDest= null;
 		if(numRot == 1)
 		{
 			rotateDest= new Mat(image.rows(), image.cols(), image.type());
 			rotateDest= image.t();
+			Core.flip(rotateDest, rotateDest, REFLECT_ACROSS_Y_AXIS);
 		}
 		else if(numRot == 2)
 		{
@@ -196,11 +322,10 @@ public class ImageProc {
 		{
 			rotateDest= new Mat(image.rows(), image.cols(), image.type());
 			rotateDest = image.t();
-			Core.flip(rotateDest, rotateDest, -1);
+			Core.flip(rotateDest, rotateDest, REFLECT_OVER_X_AXIS);
 		}
 		return rotateDest;
 	}
-	
 	
 	public static Mat stitchImages(String file1, String file2)
 	{
@@ -367,18 +492,50 @@ public class ImageProc {
 		return image;
 	}
 	
-	public static Mat convertFromBufferedImage(BufferedImage imageData)
+	public static Mat convertFromBufferedImage(BufferedImage in)
 	{
-		byte[] pixels= ((DataBufferByte) imageData.getRaster().getDataBuffer()).getData();
+		if(in == null)
+			return null;
 		
-		Mat image= new Mat(imageData.getHeight(), imageData.getWidth(), CvType.CV_8UC3);
-		image.put(0, 0, pixels);
-		
-		return image;
+		Mat out;
+        byte[] data;
+        int r, g, b;
+        int height = in.getHeight();
+        int width = in.getWidth();
+        if(in.getType() == BufferedImage.TYPE_INT_RGB || in.getType() == BufferedImage.TYPE_3BYTE_BGR || in.getType() == BufferedImage.TYPE_INT_ARGB || in.getType()==BufferedImage.TYPE_4BYTE_ABGR)
+        {
+            out = new Mat(height, width, CvType.CV_8UC3);
+            data = new byte[height * width * (int)out.elemSize()];
+            int[] dataBuff = in.getRGB(0, 0, width, height, null, 0, width);
+            for(int i = 0; i < dataBuff.length; i++)
+            {
+                data[i*3 + 2] = (byte) ((dataBuff[i] >> 16) & 0xFF);
+                data[i*3 + 1] = (byte) ((dataBuff[i] >> 8) & 0xFF);
+                data[i*3] = (byte) ((dataBuff[i] >> 0) & 0xFF);
+            }
+        }
+        else
+        {
+            out = new Mat(height, width, CvType.CV_8UC1);
+            data = new byte[height * width * (int)out.elemSize()];
+            int[] dataBuff = in.getRGB(0, 0, width, height, null, 0, width);
+            for(int i = 0; i < dataBuff.length; i++)
+            {
+              r = (byte) ((dataBuff[i] >> 16) & 0xFF);
+              g = (byte) ((dataBuff[i] >> 8) & 0xFF);
+              b = (byte) ((dataBuff[i] >> 0) & 0xFF);
+              data[i] = (byte)((0.21 * r) + (0.71 * g) + (0.07 * b)); //luminosity
+            }
+         }
+         out.put(0, 0, data);
+         Highgui.imwrite("TestImages/writeTest.png", out);
+         return out;
 	}
 	
 	public static Image convertToBufferedImage(Mat m)
 	{
+		if(m == null)
+			return null;
 		int type= BufferedImage.TYPE_BYTE_GRAY;
 		if(m.channels() > 1)
 		{
@@ -393,4 +550,5 @@ public class ImageProc {
 		System.arraycopy(b, 0, targetPixels, 0, b.length);
 		return image;
 	}
+	
 }
