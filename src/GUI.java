@@ -11,8 +11,9 @@ import org.opencv.core.Mat;
 public class GUI extends JFrame implements ActionListener {
 
 	private JMenuItem item1 = new JMenuItem("Open");
-	private JMenuItem item2 = new JMenuItem("New Window");
-	private JMenuItem item3 = new JMenuItem("Quit");
+	private JMenuItem item2= new JMenuItem("Save");
+	private JMenuItem item3 = new JMenuItem("New Window");
+	private JMenuItem item4 = new JMenuItem("Quit");
 	
 	private JMenuItem toolItem01 = new JMenuItem("Scale");
 	private JMenuItem toolItem02 = new JMenuItem("Rotate 90");
@@ -43,11 +44,13 @@ public class GUI extends JFrame implements ActionListener {
 		
 		item1.addActionListener(this);
 		item2.addActionListener(this);
-	    item3.addActionListener(this);
+		item3.addActionListener(this);
+	    item4.addActionListener(this);
 	
 		menu1.add(item1);
 		menu1.add(item2);
-		menu1.add(item3);	
+		menu1.add(item3);
+		menu1.add(item4);	
 		
 		menubar.add(menu1);
 		
@@ -109,16 +112,31 @@ public class GUI extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent E)
 	{
 		if(E.getSource() == item1){
-			JFileChooser F = new JFileChooser("");
+			JFileChooser F = new JFileChooser("Open");
 			F.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			F.showOpenDialog(null);
 			File file = F.getSelectedFile();
 			createWindow(imageCopy(file.getPath()),file.getPath());
 		}
-		if(E.getSource() == item2){
-			createWindow();
+		if(E.getSource() == item2)
+		{
+			JFileChooser F = new JFileChooser("Save");
+			int rval = F.showSaveDialog(null);
+			if(rval == JFileChooser.APPROVE_OPTION)
+			{
+				String filename= F.getSelectedFile().toPath().toString();
+				//String directory= F.getCurrentDirectory().toString();
+				ImageProc.saveImage(windowImage, filename);
+			}
+			if(rval== JFileChooser.CANCEL_OPTION)
+			{
+				
+			}
 		}
 		if(E.getSource() == item3){
+			createWindow();
+		}
+		if(E.getSource() == item4){
 			System.exit(0);
 		}
 		if(windowImage != null)
