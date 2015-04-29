@@ -6,8 +6,8 @@ import java.io.*;
 import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
-import org.opencv.core.Mat;
 
+@SuppressWarnings("serial")
 public class GUI extends JFrame implements ActionListener {
 
 	private JMenuItem item1 = new JMenuItem("Open");
@@ -15,6 +15,7 @@ public class GUI extends JFrame implements ActionListener {
 	private JMenuItem item3 = new JMenuItem("New Window");
 	private JMenuItem item4 = new JMenuItem("Quit");
 	
+	private JMenuItem toolItem00 = new JMenuItem("Grayscale");
 	private JMenuItem toolItem01 = new JMenuItem("Scale");
 	private JMenuItem toolItem02 = new JMenuItem("Rotate 90");
 	private JMenuItem toolItem03 = new JMenuItem("Rotate 180");
@@ -54,6 +55,7 @@ public class GUI extends JFrame implements ActionListener {
 		
 		menubar.add(menu1);
 		
+		toolItem00.addActionListener(this);
 		toolItem01.addActionListener(this);
 		toolItem02.addActionListener(this);
 		toolItem03.addActionListener(this);
@@ -66,6 +68,7 @@ public class GUI extends JFrame implements ActionListener {
 		toolItem10.addActionListener(this);
 		toolItem11.addActionListener(this);
 		
+		toolsMenu.add(toolItem00);
 		toolsMenu.add(toolItem01);
 		toolsMenu.add(toolItem02);
 		toolsMenu.add(toolItem03);
@@ -105,19 +108,25 @@ public class GUI extends JFrame implements ActionListener {
 
     	public void paintComponent(Graphics g) {
         	super.paintComponent(g);       
-		    Graphics g2 = graphic.getGraphics();
+		    //Graphics g2 = graphic.getGraphics();
             g.drawImage(graphic,0,0,null);
     	} 	
 	}
 	public void actionPerformed(ActionEvent E)
 	{
+		//opens a new image file
 		if(E.getSource() == item1){
 			JFileChooser F = new JFileChooser("Open");
 			F.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			F.showOpenDialog(null);
 			File file = F.getSelectedFile();
-			createWindow(imageCopy(file.getPath()),file.getPath());
+			if(file != null)
+			{
+				createWindow(imageCopy(file.getPath()),file.getPath());
+			}
+			
 		}
+		//save file
 		if(E.getSource() == item2)
 		{
 			JFileChooser F = new JFileChooser("Save");
@@ -125,7 +134,7 @@ public class GUI extends JFrame implements ActionListener {
 			if(rval == JFileChooser.APPROVE_OPTION)
 			{
 				String filename= F.getSelectedFile().toPath().toString();
-				//String directory= F.getCurrentDirectory().toString();
+				
 				ImageProc.saveImage(windowImage, filename);
 			}
 			if(rval== JFileChooser.CANCEL_OPTION)
@@ -133,14 +142,22 @@ public class GUI extends JFrame implements ActionListener {
 				
 			}
 		}
+		//creates a new window
 		if(E.getSource() == item3){
 			createWindow();
 		}
+		//closes the window
 		if(E.getSource() == item4){
 			System.exit(0);
 		}
 		if(windowImage != null)
 		{
+			//grayscale image
+			if(E.getSource() == toolItem00)
+			{
+				BufferedImage image =ImageProc.grayScaleImage(windowImage);
+				createWindow(image, "Untitled");
+			}
 			//scale image
 			if(E.getSource() == toolItem01){
 				//String s= "How much do you want to scale the image by?";
@@ -208,7 +225,13 @@ public class GUI extends JFrame implements ActionListener {
 			//blend images
 			if(E.getSource() == toolItem11)
 			{
-				
+				JFileChooser F = new JFileChooser("Open the image to blend");
+				F.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				F.showOpenDialog(null);
+				File file = F.getSelectedFile();
+				BufferedImage otherImage= imageCopy(file.getPath());
+				BufferedImage image= ImageProc.blendImages(windowImage, otherImage);
+				createWindow(image, "Untitled");
 			}
 		}
 	}
@@ -232,10 +255,11 @@ public class GUI extends JFrame implements ActionListener {
 	
 	//create a new window with an imported image object
 	public static void createWindow(){
-		new GUI(null,"");
+		new GUI(null,"Untitled");
 	}
+	
 	public static void main(String args[])
 	{
-		createWindow(imageCopy("/Users/adam/Documents/Academic/montclair/cmpt594/project/Untitled.jpeg"),"Untitled.jpeg");
+		createWindow();
 	}
 }
