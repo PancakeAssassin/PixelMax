@@ -1,15 +1,9 @@
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-//import java.util.Map;
-
-import javax.imageio.ImageIO;
-
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -30,17 +24,10 @@ import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 
-public class ImageProc {
+public class Utilities {
 
 	public static final int REFLECT_OVER_X_AXIS= 0;
 	public static final int REFLECT_ACROSS_Y_AXIS= 1;
-	
-	public static BufferedImage grayScaleImage(BufferedImage img)
-	{
-		Mat image= convertFromBufferedImage(img);
-		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGBA2GRAY);
-		return (BufferedImage) convertToBufferedImage(image);
-	}
 	
 	public static Mat sharpenImage(String filename)
 	{
@@ -228,7 +215,7 @@ public class ImageProc {
 		if((oImage.width() != otherImage.width()) || (oImage.height() != otherImage.height()))
 		{
 			System.out.println("Unable to blend images of unlike sizes");
-			return null;
+			return (BufferedImage)convertToBufferedImage(oImage);
 		}
 		double alpha= 0.5;
 		double beta= (1-alpha);
@@ -238,14 +225,6 @@ public class ImageProc {
 		return (BufferedImage) convertToBufferedImage(oImage);
 	}
 	
-	public static Mat perspectiveTransform(String filename)
-	{
-		Mat originalImage= LoadImage(filename);
-		
-		Imgproc.getPerspectiveTransform(originalImage, originalImage);
-		
-		return originalImage;
-	}
 	
 	public static Mat scale(String filename, float scaleBy)
 	{
@@ -342,8 +321,8 @@ public class ImageProc {
 	{
 		
 		FeatureDetector fd= FeatureDetector.create(FeatureDetector.SURF);
-		DescriptorExtractor fe= DescriptorExtractor.create(DescriptorExtractor.SURF);
-		DescriptorMatcher fm= DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
+		DescriptorExtractor fe= DescriptorExtractor.create(DescriptorExtractor.ORB);
+		DescriptorMatcher fm= DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE);
 		
 		Mat image1= LoadImage(file1);
 		Imgproc.cvtColor(image1, image1, Imgproc.COLOR_RGBA2GRAY);
@@ -372,7 +351,7 @@ public class ImageProc {
 		fe.compute(image2, kp2, descriptor2);
 		
 		//get the matches between the 2 sets
-		fm.match(descriptor1, descriptor2, matches);
+		fm.match(descriptor2, descriptor1, matches);
 		
 		//make the matches into a list
 		List<DMatch> matchesList= matches.toList();
@@ -381,7 +360,7 @@ public class ImageProc {
 		double minDist= 100.0;
 		
 		//calculate max & min distances between kps
-		for(int i= 0; i<descriptor1.rows(); i++)
+		for(int i= 0; i<kp2.rows(); i++)
 		{
 			double dist= (double) matchesList.get(i).distance;
 			if(dist < minDist)
@@ -394,7 +373,7 @@ public class ImageProc {
 		LinkedList<DMatch> goodMatches = new LinkedList<DMatch>();
 		
 		//use only good matches
-		for(int i= 0; i<descriptor1.rows(); i++)
+		for(int i= 0; i<descriptor2.rows(); i++)
 		{
 			if(matchesList.get(i).distance < 3*minDist)
 			{
@@ -412,8 +391,8 @@ public class ImageProc {
 		//put the points of good matches into the structures
 		for(int i= 0; i<goodMatches.size(); i++)
 		{
-			objList.addLast(kp_objectList.get(goodMatches.get(i).queryIdx).pt);
-			sceneList.addLast(kp_sceneList.get(goodMatches.get(i).trainIdx).pt);
+			objList.addLast(kp_objectList.get(goodMatches.get(i).trainIdx).pt);
+			sceneList.addLast(kp_sceneList.get(goodMatches.get(i).queryIdx).pt);
 		}
 		
 		MatOfDMatch gm= new MatOfDMatch();
@@ -441,53 +420,21 @@ public class ImageProc {
 		
 		//structure to hold the result of the homography matrix
 		
+		
+		Size size= new Size(image1.cols()+image2.cols(), image1.rows());
+		
 		Mat cImage1= LoadImage(file1);
 		Mat cImage2= LoadImage(file2);
 		
-
-		Size size= new Size(cImage1.cols()+cImage2.cols(), cImage1.rows());
 		//use homography matrix to warp the two images
 		Imgproc.warpPerspective(cImage1, result, H, size);
 		int i= cImage1.cols();
 		Mat m = new Mat(result, new Rect(i, 0, cImage2.cols(), cImage2.rows()));
-		cImage2.copyTo(m);
 		
+		cImage2.copyTo(m);
 		return result;
 	}
 	
-	public static Mat generateMosaic(String largeImage, String[] smallerImages)
-	{
-		//load the larger image
-		Mat originalImage= LoadImage(largeImage);
-		if(originalImage == null)
-		{
-			System.out.println("Unable to create image mosaic from given image.");
-			return null;
-		}
-		
-		//load the image
-		Mat[] images= new Mat[smallerImages.length];
-		for(int i= 0; i < smallerImages.length; i++)
-		{
-			images[i]= LoadImage(smallerImages[i]);
-		}
-		
-		//find out the number of rows and columns of smaller images in the larger image
-		//int rows= (int)(originalImage.height() / images[0].height());
-		//int cols= (int) (originalImage.width() / images[0].width());
-		
-		//find the average pixel value for an image
-		//Map<Float,Mat> colorValues;
-		for(int i = 0; i < smallerImages.length; i++)
-		{
-			//float result= 0;
-			for(int j= 0; j<smallerImages[i].length(); j++)
-			{
-				
-			}
-		}
-		return originalImage;
-	}
 	
 	public static Mat LoadImage(String filename)
 	{
@@ -538,6 +485,7 @@ public class ImageProc {
             }
          }
          out.put(0, 0, data);
+         Highgui.imwrite("TestImages/writeTest.png", out);
          return out;
 	}
 	
@@ -559,17 +507,7 @@ public class ImageProc {
 		System.arraycopy(b, 0, targetPixels, 0, b.length);
 		return image;
 	}
-	
-	public static void saveImage(BufferedImage img, String filename)
-	{
-		try
-		{
-			ImageIO.write(img, "PNG", new File(filename));
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+	public static void saveImage(Image img, String filename) {
+		System.out.println("No one has implemented saveImage yet!");
 	}
-	
 }
