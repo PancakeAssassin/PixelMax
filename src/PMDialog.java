@@ -42,41 +42,41 @@ public class PMDialog extends JDialog implements ActionListener {
 		super(parent, title);
 
 		GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
+        	GridBagConstraints c = new GridBagConstraints();
 		JPanel messagePane = new JPanel();
 		getContentPane().add(messagePane);
-        setFont(new Font("SansSerif", Font.PLAIN, 14));
-        setLayout(gridbag);
+        	setFont(new Font("SansSerif", Font.PLAIN, 14));
+        	setLayout(gridbag);
 
-        c.fill = GridBagConstraints.BOTH;    
-        c.weightx = 1.0;
-        makeLabel("Blue Print Image", gridbag, c);
-        imagename = makeLabel("current image", gridbag, c);
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        makeLabel("Tile Source Folder", gridbag, c);
-        srcDir = makeLabel("current folder", gridbag, c);
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        imgButton = makeButton("Choose Image", gridbag, c);
-        imgButton.addActionListener(this);
-        dirButton = makeButton("Choose Directory", gridbag, c);
-        dirButton.addActionListener(this);
-        String[] threads = { "1", "2", "3", "4" };
-        threadCount = new JComboBox(threads);
-        threadCount.setSelectedIndex(1);
-        threadCount.addActionListener(this);
-        add(threadCount);
-        String[] dimensions = { "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60", "65", "70", "75","80","85","90","95","100" };
-        thCount = new JComboBox(dimensions);
-        thCount.setSelectedIndex(1);
-        thCount.addActionListener(this);
-        add(thCount);
-        twCount = new JComboBox(dimensions);
-        twCount.setSelectedIndex(1);
-        twCount.addActionListener(this);
-        add(twCount);
-        submit = makeButton("Submit", gridbag, c);
-        submit.addActionListener(this);
-        setSize(300, 100);
+        	c.fill = GridBagConstraints.BOTH;    
+        	c.weightx = 1.0;
+        	makeLabel("Blue Print Image", gridbag, c);
+        	imagename = makeLabel("current image", gridbag, c);
+        	c.gridwidth = GridBagConstraints.REMAINDER;
+        	makeLabel("Tile Source Folder", gridbag, c);
+        	srcDir = makeLabel("current folder", gridbag, c);
+        	c.gridwidth = GridBagConstraints.REMAINDER;
+        	imgButton = makeButton("Choose Image", gridbag, c);
+        	imgButton.addActionListener(this);
+        	dirButton = makeButton("Choose Directory", gridbag, c);
+        	dirButton.addActionListener(this);
+        	String[] threads = { "1", "2", "3", "4" };
+        	threadCount = new JComboBox(threads);
+        	threadCount.setSelectedIndex(1);
+        	threadCount.addActionListener(this);
+        	add(threadCount);
+        	String[] dimensions = { "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60", "65", "70", "75","80","85","90","95","100" };
+        	thCount = new JComboBox(dimensions);
+        	thCount.setSelectedIndex(1);
+        	thCount.addActionListener(this);
+        	add(thCount);
+        	twCount = new JComboBox(dimensions);
+        	twCount.setSelectedIndex(1);
+        	twCount.addActionListener(this);
+        	add(twCount);
+        	submit = makeButton("Submit", gridbag, c);
+        	submit.addActionListener(this);
+        	setSize(300, 100);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		pack();
 		setVisible(true);
@@ -103,13 +103,18 @@ public class PMDialog extends JDialog implements ActionListener {
     
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == submit){
-			System.out.println(getTilewidth());
-			System.out.println(getTileheight());
-			System.out.println(getFilename());
-			System.out.println(getDirectory());
-			System.out.println(getNumThreads());
-			ready = true;
-			this.dispose();
+			if((getFilename() != null) && (getDirectory != null)){
+				System.out.println(getTilewidth());
+				System.out.println(getTileheight());
+				System.out.println(getFilename());
+				System.out.println(getDirectory());
+				System.out.println(getNumThreads());
+				ready = true;
+				this.dispose();
+			} else {
+				JOptionPane.showMessageDialog(null, 
+				“You must set an image and a tile directory before you can submit this form.”);
+			}
 		}
 		if(e.getSource() == imgButton){
 			JFileChooser F = new JFileChooser("Open");
