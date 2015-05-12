@@ -6,6 +6,7 @@ import java.awt.*;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JFileChooser;
 import javax.swing.JComboBox;
@@ -103,7 +104,7 @@ public class PMDialog extends JDialog implements ActionListener {
     
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == submit){
-			if((getFilename() != null) && (getDirectory != null)){
+			if((getFilename() != null) && (getDirectory() != null)){
 				System.out.println(getTilewidth());
 				System.out.println(getTileheight());
 				System.out.println(getFilename());
@@ -113,7 +114,7 @@ public class PMDialog extends JDialog implements ActionListener {
 				this.dispose();
 			} else {
 				JOptionPane.showMessageDialog(null, 
-				“You must set an image and a tile directory before you can submit this form.”);
+				"You must set an image and a tile directory before you can submit this form.");
 			}
 		}
 		if(e.getSource() == imgButton){
