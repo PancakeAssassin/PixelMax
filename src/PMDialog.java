@@ -16,13 +16,13 @@ public class PMDialog extends JDialog implements ActionListener {
 
 	String filename;
 	public String getFilename(){ return filename; }
-	int tw;
+	int tw = 10;
 	public int getTilewidth(){ return tw; }
-	int th;
+	int th = 10;
 	public int getTileheight(){ return th; }
 	String directory;
 	public String getDirectory(){ return directory; }
-	int numberOfThreads;
+	int numberOfThreads = 2;
 	public int getNumThreads(){ return numberOfThreads; }
 	boolean gui;
 	public boolean isGUI(){ return gui; }
